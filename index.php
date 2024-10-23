@@ -103,11 +103,11 @@ links.forEach(link => {
     <div class="modal-content">
       <span class="close" onclick="closeModal('signUpModal')">&times;</span>
       <h2>Sign Up</h2>
-      <form>
-        <input type="text" placeholder="Enter Username" required>
-        <input type="email" placeholder="Enter Email" required>
-        <input type="password" placeholder="Enter Password" required>
-        <input type="password" placeholder="Confirm Password" required>
+      <form action="signup.php" method="POST">
+        <input type="text" name="username" placeholder="Enter Username" required>
+        <input type="email" name="email" placeholder="Enter Email" required>
+        <input type="password" name="password" placeholder="Enter Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
         <br>
         <button type="submit" class="primary-btn">Sign Up</button>
       </form>
