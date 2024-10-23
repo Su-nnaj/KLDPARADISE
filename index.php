@@ -168,7 +168,7 @@ window.onclick = function(event) {
     <div class="content">
       <div class="">
         <div class="item">
-          <img src="images/banner-1.png" alt="">
+          <img src="img/banner-1.png" alt="">
           <div class="text">
             <h1>Paradise isn't a place,<br> It's a feeling.</h1>
            
