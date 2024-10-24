@@ -160,6 +160,47 @@ window.onclick = function(event) {
   }
 }
 
+// Function to show a message
+function showMessage(message, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = message;
+    messageDiv.style.padding = '10px';
+    messageDiv.style.marginBottom = '10px';
+    messageDiv.style.backgroundColor = isError ? '#ffcccc' : '#ccffcc';
+    messageDiv.style.border = `1px solid ${isError ? '#ff0000' : '#00ff00'}`;
+    messageDiv.style.borderRadius = '5px';
+    
+    const modalContent = document.querySelector('#loginModal .modal-content');
+    modalContent.insertBefore(messageDiv, modalContent.firstChild);
+    
+    setTimeout(() => messageDiv.remove(), 5000); // Remove message after 5 seconds
+}
+
+// Handle form submission
+document.querySelector('#signUpModal form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('signup.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('signUpModal');
+            openModal('loginModal');
+            showMessage(data.message); // Show success message in login modal
+        } else {
+            showMessage(data.message, true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('An error occurred. Please try again.', true);
+    });
+});
 
 </script>
 
