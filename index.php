@@ -1,5 +1,10 @@
 <?php
+session_start();
 require_once 'db_connect.php';
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true;
+$username = $isLoggedIn ? $_SESSION["username"] : '';
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -14,6 +19,43 @@ require_once 'db_connect.php';
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" integrity="sha512-sMXtMNL1zRzolHYKEujM2AqCLUR9F2C4/05cdbxjjLSRvMQIciEPCQZo++nk7go3BtSuK9kfa/s+a4f4i5pLkw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 
@@ -39,7 +81,11 @@ require_once 'db_connect.php';
           <li><a href="#about">about</a></li>
           <li><a href="#rooms">rooms</a></li>
           <li><a href="#contact">contact</a></li>
-          <li><button class="primary-btn" onclick="openModal('signUpModal')">Sign Up</button></li>
+          <?php if ($isLoggedIn): ?>
+            <li><button class="primary-btn" onclick="logout()">Log Out</button></li>
+          <?php else: ?>
+            <li><button id="loginBtn" class="primary-btn" onclick="openModal('loginModal')">Login</button></li>
+          <?php endif; ?>
         </ul>
         <span class="fa fa-bars" id="burger" onclick="menutoggle()"></span>
       </div>
@@ -120,9 +166,9 @@ links.forEach(link => {
     <div class="modal-content">
       <span class="close" onclick="closeModal('loginModal')">&times;</span>
       <h2>Login</h2>
-      <form>
-        <input type="email" placeholder="Enter Email" required>
-        <input type="password" placeholder="Enter Password" required>
+      <form id="loginForm">
+        <input type="email" name="email" placeholder="Enter Email" required>
+        <input type="password" name="password" placeholder="Enter Password" required>
         <br>
         <button type="submit" class="primary-btn">Login</button>
       </form>
@@ -132,6 +178,7 @@ links.forEach(link => {
 <script>
 // Open the modal
 function openModal(modalId) {
+  console.log('Opening modal:', modalId);
   document.getElementById(modalId).style.display = 'block';
 }
 
@@ -200,6 +247,66 @@ document.querySelector('#signUpModal form').addEventListener('submit', function(
         console.error('Error:', error);
         showMessage('An error occurred. Please try again.', true);
     });
+});
+
+// Handle login form submission
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('Login form submitted');
+    
+    const formData = new FormData(this);
+    
+    fetch('login.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Response received:', response);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Data received:', data);
+        if (data.success) {
+            closeModal('loginModal');
+            showMessage(data.message);
+            // Reload the page to update the UI
+            location.reload();
+        } else {
+            showMessage(data.message, true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('An error occurred. Please try again.', true);
+    });
+});
+
+// Function to handle logout
+function logout() {
+    fetch('logout.php', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message);
+            // Reload the page to update the UI
+            location.reload();
+        } else {
+            showMessage(data.message, true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('An error occurred. Please try again.', true);
+    });
+}
+
+// Add this to your existing <script> tag
+document.getElementById('loginBtn').addEventListener('click', function() {
+  console.log('Login button clicked');
+  const modal = document.getElementById('loginModal');
+  console.log('Modal display style:', modal.style.display);
 });
 
 </script>
@@ -556,3 +663,5 @@ document.querySelector('#signUpModal form').addEventListener('submit', function(
 </body>
 
 </html>
+
+
